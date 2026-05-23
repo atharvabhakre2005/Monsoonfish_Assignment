@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Upload a logo and receive silhouette, edge, and grayscale transformations delivered to your email." />
+    <title>Logo Processing Service</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+        /* ── Reset & Base ──────────────────────────────────────────────── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-card: rgba(255, 255, 255, 0.04);
+            --bg-card-hover: rgba(255, 255, 255, 0.07);
+            --border: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(255, 255, 255, 0.15);
+            --text-primary: #f0f0f5;
+            --text-secondary: #8a8a9a;
+            --text-muted: #55556a;
+            --accent: #6366f1;
+            --accent-hover: #818cf8;
+            --accent-glow: rgba(99, 102, 241, 0.25);
+            --success: #22c55e;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --radius: 12px;
+            --radius-lg: 16px;
+            --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(ellipse at 30% 20%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+                        radial-gradient(ellipse at 70% 80%, rgba(139, 92, 246, 0.06) 0%, transparent 50%);
+            z-index: -1;
+            animation: bgShift 20s ease-in-out infinite alternate;
+        }
+
+        @keyframes bgShift {
+            0%   { transform: translate(0, 0); }
+            100% { transform: translate(-5%, 3%); }
+        }
+
+        /* ── Layout ────────────────────────────────────────────────────── */
+        .container {
+            width: 100%;
+            max-width: 640px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        header .badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--accent);
+            background: var(--accent-glow);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 100px;
+            margin-bottom: 1rem;
+        }
+
+        header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            line-height: 1.3;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* ── Card ──────────────────────────────────────────────────────── */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.75rem;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            transition: border-color var(--transition);
+        }
+
+        .card:hover {
+            border-color: var(--border-hover);
+        }
+
+        /* ── Upload Zone ───────────────────────────────────────────────── */
+        .upload-zone {
+            position: relative;
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition);
+            margin-bottom: 1.25rem;
+        }
+
+        .upload-zone:hover,
+        .upload-zone.drag-over {
+            border-color: var(--accent);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .upload-zone.has-file {
+            border-color: var(--success);
+            border-style: solid;
+            background: rgba(34, 197, 94, 0.04);
+        }
+
+        .upload-zone input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .upload-icon {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .upload-zone h3 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 0.35rem;
+        }
+
+        .upload-zone .hint {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        .file-info {
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--success);
+            margin-top: 0.5rem;
+        }
+
+        .file-info.visible { display: flex; justify-content: center; }
+
+        /* ── Preview ───────────────────────────────────────────────────── */
+        .preview-container {
+            display: none;
+            margin-bottom: 1.25rem;
+            border-radius: var(--radius);
+            overflow: hidden;
+            background: repeating-conic-gradient(rgba(255,255,255,0.03) 0% 25%, transparent 0% 50%) 50% / 20px 20px;
+            border: 1px solid var(--border);
+            max-height: 200px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .preview-container.visible { display: flex; }
+
+        .preview-container img {
+            max-width: 100%;
+            max-height: 200px;
+            object-fit: contain;
+        }
+
+        /* ── Button ────────────────────────────────────────────────────── */
+        .btn-process {
+            width: 100%;
+            padding: 0.85rem;
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #fff;
+            background: var(--accent);
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-process:hover:not(:disabled) {
+            background: var(--accent-hover);
+            box-shadow: 0 0 20px var(--accent-glow);
+            transform: translateY(-1px);
+        }
+
+        .btn-process:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn-process:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* ── Spinner ───────────────────────────────────────────────────── */
+        .spinner {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            margin-right: 0.5rem;
+        }
+
+        .btn-process.loading .spinner { display: inline-block; }
+        .btn-process.loading .btn-text { opacity: 0.8; }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── Status Messages ───────────────────────────────────────────── */
+        .status-bar {
+            display: none;
+            margin-top: 1.25rem;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius);
+            font-size: 0.82rem;
+            font-weight: 500;
+            line-height: 1.5;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .status-bar.visible { display: block; }
+
+        .status-bar.success {
+            background: rgba(34, 197, 94, 0.08);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            color: var(--success);
+        }
+
+        .status-bar.error {
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: var(--error);
+        }
+
+        .status-bar.warning {
+            background: rgba(245, 158, 11, 0.08);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Results Grid ──────────────────────────────────────────────── */
+        .results-section {
+            display: none;
+            margin-top: 2rem;
+        }
+
+        .results-section.visible { display: block; }
+
+        .results-section h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+        }
+
+        .result-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            transition: all var(--transition);
+            animation: fadeIn 0.4s ease;
+        }
+
+        .result-card:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
+
+        .result-card .thumb {
+            width: 100%;
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: repeating-conic-gradient(rgba(255,255,255,0.03) 0% 25%, transparent 0% 50%) 50% / 16px 16px;
+            padding: 0.75rem;
+        }
+
+        .result-card .thumb img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .result-card .label {
+            padding: 0.6rem 0.75rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .result-card .label span {
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: capitalize;
+        }
+
+        .result-card .label a {
+            font-size: 0.7rem;
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color var(--transition);
+        }
+
+        .result-card .label a:hover {
+            color: var(--accent-hover);
+        }
+
+        /* ── Footer ────────────────────────────────────────────────────── */
+        footer {
+            margin-top: 3rem;
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* ── Responsive ────────────────────────────────────────────────── */
+        @media (max-width: 480px) {
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+            header h1 { font-size: 1.4rem; }
+            .card { padding: 1.25rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Header -->
+    <header>
+        <div class="badge">Computer Vision Pipeline</div>
+        <h1>Logo Processing Service</h1>
+        <p>Upload a logo or image to generate silhouette, edge, and grayscale outputs — delivered to your inbox automatically.</p>
+    </header>
+
+    <!-- Upload Card -->
+    <div class="card">
+        <form id="uploadForm" enctype="multipart/form-data">
+            <!-- Drop Zone -->
+            <div class="upload-zone" id="dropZone">
+                <input type="file" id="fileInput" name="file" accept=".png,.jpg,.jpeg" />
+                <div class="upload-icon">📁</div>
+                <h3>Drop your image here or click to browse</h3>
+                <p class="hint">PNG, JPG / JPEG — max 5 MB</p>
+                <div class="file-info" id="fileInfo">
+                    <span>✓</span>
+                    <span id="fileName"></span>
+                </div>
+            </div>
+
+            <!-- Preview -->
+            <div class="preview-container" id="previewContainer">
+                <img id="previewImage" alt="Upload preview" />
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="btn-process" id="submitBtn" disabled>
+                <span class="spinner"></span>
+                <span class="btn-text">Upload &amp; Process</span>
+            </button>
+        </form>
+
+        <!-- Status -->
+        <div class="status-bar" id="statusBar"></div>
+    </div>
+
+    <!-- Results -->
+    <div class="results-section" id="resultsSection">
+        <h2>Generated Outputs</h2>
+        <div class="results-grid" id="resultsGrid"></div>
+    </div>
+
+    <footer>
+        Logo Processing &amp; Email Delivery Service &bull; FastAPI + OpenCV
+    </footer>
+</div>
+
+<script>
+    const dropZone      = document.getElementById('dropZone');
+    const fileInput      = document.getElementById('fileInput');
+    const fileInfo       = document.getElementById('fileInfo');
+    const fileName       = document.getElementById('fileName');
+    const previewContainer = document.getElementById('previewContainer');
+    const previewImage   = document.getElementById('previewImage');
+    const submitBtn      = document.getElementById('submitBtn');
+    const statusBar      = document.getElementById('statusBar');
+    const resultsSection = document.getElementById('resultsSection');
+    const resultsGrid    = document.getElementById('resultsGrid');
+    const form           = document.getElementById('uploadForm');
+
+    // ── Drag & Drop ──────────────────────────────────────────────────────
+    ['dragenter', 'dragover'].forEach(evt =>
+        dropZone.addEventListener(evt, e => {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        })
+    );
+    ['dragleave', 'drop'].forEach(evt =>
+        dropZone.addEventListener(evt, e => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+        })
+    );
+    dropZone.addEventListener('drop', e => {
+        if (e.dataTransfer.files.length) {
+            fileInput.files = e.dataTransfer.files;
+            handleFileSelect(e.dataTransfer.files[0]);
+        }
+    });
+
+    // ── File selection ───────────────────────────────────────────────────
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files.length) handleFileSelect(fileInput.files[0]);
+    });
+
+    function handleFileSelect(file) {
+        fileName.textContent = `${file.name} (${(file.size / 1024).toFixed(0)} KB)`;
+        fileInfo.classList.add('visible');
+        dropZone.classList.add('has-file');
+        submitBtn.disabled = false;
+
+        // Preview
+        const reader = new FileReader();
+        reader.onload = e => {
+            previewImage.src = e.target.result;
+            previewContainer.classList.add('visible');
+        };
+        reader.readAsDataURL(file);
+
+        // Clear old results
+        resultsSection.classList.remove('visible');
+        statusBar.classList.remove('visible', 'success', 'error', 'warning');
+    }
+
+    // ── Form submission ──────────────────────────────────────────────────
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const file = fileInput.files[0];
+        if (!file) return;
+
+        // UI → loading
+        submitBtn.disabled = true;
+        submitBtn.classList.add('loading');
+        submitBtn.querySelector('.btn-text').textContent = 'Processing…';
+        statusBar.classList.remove('visible', 'success', 'error', 'warning');
+        resultsSection.classList.remove('visible');
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const res = await fetch('/process', { method: 'POST', body: formData });
+            const data = await res.json();
+
+            if (!res.ok) {
+                showStatus('error', `Error: ${data.detail || 'Processing failed.'}`);
+                return;
+            }
+
+            // Email status
+            const emailOk = data.email_status === 'sent';
+            if (emailOk) {
+                showStatus('success',
+                    `✓ All 3 outputs generated successfully. Email sent!`
+                );
+            } else {
+                showStatus('warning',
+                    `✓ Outputs generated. Email: ${data.email_status}`
+                );
+            }
+
+            // Render result cards
+            renderResults(data.downloads);
+
+        } catch (err) {
+            showStatus('error', `Network error: ${err.message}`);
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('loading');
+            submitBtn.querySelector('.btn-text').textContent = 'Upload & Process';
+        }
+    });
+
+    function showStatus(type, message) {
+        statusBar.textContent = message;
+        statusBar.className = `status-bar visible ${type}`;
+    }
+
+    function renderResults(downloads) {
+        resultsGrid.innerHTML = '';
+        const labels = { silhouette: 'Silhouette', border: 'Edge / Border', grayscale: 'Grayscale' };
+
+        for (const [key, url] of Object.entries(downloads)) {
+            const card = document.createElement('div');
+            card.className = 'result-card';
+            card.innerHTML = `
+                <div class="thumb">
+                    <img src="${url}" alt="${labels[key] || key}" />
+                </div>
+                <div class="label">
+                    <span>${labels[key] || key}</span>
+                    <a href="${url}" download="${key}.png">↓ Save</a>
+                </div>
+            `;
+            resultsGrid.appendChild(card);
+        }
+
+        resultsSection.classList.add('visible');
+    }
+</script>
+
+</body>
+</html>
