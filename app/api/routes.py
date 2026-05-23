@@ -30,15 +30,15 @@ async def process_logo(file: UploadFile = File(...)):
     Accept an image upload, run all 3 CV transformations,
     send the results via email, and return a JSON confirmation.
     """
-    # ── 1. Validate the upload ───────────────────────────────────────────
+    # 1. Validate the upload
     raw_bytes = await validate_upload(file)
 
-    # ── 2. Create a unique output directory for this request ─────────────
+    # 2. Create a unique output directory for this request
     request_id = uuid.uuid4().hex[:12]
     output_dir = OUTPUT_DIR / request_id
     logger.info("Processing request %s — file: %s", request_id, file.filename)
 
-    # ── 3. Run image processing pipeline ─────────────────────────────────
+    # 3. Run image processing pipeline
     try:
         output_paths = process_image(raw_bytes, output_dir)
     except ValueError as exc:
@@ -53,7 +53,7 @@ async def process_logo(file: UploadFile = File(...)):
             detail=f"Processing failed unexpectedly: {exc}",
         )
 
-    # ── 4. Send email with attachments ───────────────────────────────────
+    # 4. Send email with attachments
     try:
         email_status = send_results_email(output_paths)
     except RuntimeError as exc:
@@ -64,7 +64,7 @@ async def process_logo(file: UploadFile = File(...)):
         email_status = f"failed: {exc}"
         logger.exception("Email delivery error for request %s", request_id)
 
-    # ── 5. Build response ────────────────────────────────────────────────
+    # 5. Build response
     return {
         "request_id": request_id,
         "silhouette": "generated",

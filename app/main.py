@@ -12,14 +12,14 @@ from fastapi.staticfiles import StaticFiles
 from app.api.routes import router
 from app.config import OUTPUT_DIR
 
-# ── Logging setup ────────────────────────────────────────────────────────────
+# Logging setup
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s │ %(levelname)-8s │ %(name)s │ %(message)s",
     datefmt="%H:%M:%S",
 )
 
-# ── App instance ─────────────────────────────────────────────────────────────
+# App instance
 app = FastAPI(
     title="Logo Processing & Email Delivery Service",
     description=(
@@ -29,8 +29,8 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# ── Mount static files for output downloads ──────────────────────────────────
+# Mount static files for output downloads
 app.mount("/static-outputs", StaticFiles(directory=str(OUTPUT_DIR)), name="outputs")
 
-# ── Register routes ──────────────────────────────────────────────────────────
+# Register routes
 app.include_router(router)

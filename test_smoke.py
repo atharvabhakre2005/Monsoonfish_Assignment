@@ -111,4 +111,5 @@ if __name__ == "__main__":
     passed = sum(1 for _, ok in results if ok)
     print(f"Results: {passed}/{len(results)} passed")
     for name, ok in results:
-        print(f"  {'✓' if ok else '✗'} {name}")
+        status_str = "PASS" if ok else "FAIL"
+        print(f"  [{status_str}] {name}")

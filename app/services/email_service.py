@@ -65,7 +65,7 @@ def send_results_email(output_paths: dict[str, Path]) -> str:
     """
     _validate_email_config()
 
-    # ── Build the message ────────────────────────────────────────────────
+    # Build the message
     msg = MIMEMultipart()
     msg["From"] = SENDER_EMAIL
     msg["To"] = RECIPIENT_EMAIL
@@ -81,7 +81,7 @@ def send_results_email(output_paths: dict[str, Path]) -> str:
     )
     msg.attach(MIMEText(body, "plain"))
 
-    # ── Attach each output file ──────────────────────────────────────────
+    # Attach each output file
     for name, filepath in output_paths.items():
         if not filepath.exists():
             logger.warning("Output file missing, skipping attachment: %s", filepath)
@@ -89,7 +89,7 @@ def send_results_email(output_paths: dict[str, Path]) -> str:
         _attach_file(msg, filepath)
         logger.info("Attached %s → %s", name, filepath.name)
 
-    # ── Send via SMTP/TLS ────────────────────────────────────────────────
+    # Send via SMTP/TLS
     try:
         with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=30) as server:
             server.ehlo()
