@@ -119,12 +119,22 @@ def generate_border(img: np.ndarray, output_path: Path) -> None:
 
     edges_content = cv2.Canny(gray_content, 80, 200)
 
-    # Combine outer boundary + internal edges, masked to the foreground
+    # Combine outer boundary + internal edges
     combined = cv2.bitwise_or(edges_mask, edges_content)
+
+    # Mask to the foreground region to prevent background edges from appearing
+    combined = cv2.bitwise_and(combined, mask)
 
     # Slightly dilate so thin strokes are visible
     kernel = np.ones((2, 2), np.uint8)
     combined = cv2.dilate(combined, kernel, iterations=1)
+
+    # Clear the outer 2 pixels of the image canvas to completely eliminate rectangular border artifacts
+    if combined.shape[0] > 4 and combined.shape[1] > 4:
+        combined[0:2, :] = 0
+        combined[-2:, :] = 0
+        combined[:, 0:2] = 0
+        combined[:, -2:] = 0
 
     # White edges on transparent background
     h, w = combined.shape
