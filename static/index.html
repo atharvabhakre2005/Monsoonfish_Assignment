@@ -7,29 +7,34 @@
     <title>Logo Processing Service</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <style>
-        /* ── Reset & Base ──────────────────────────────────────────────── */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
-            --bg-primary: #0a0a0f;
-            --bg-card: rgba(255, 255, 255, 0.04);
-            --bg-card-hover: rgba(255, 255, 255, 0.07);
-            --border: rgba(255, 255, 255, 0.08);
-            --border-hover: rgba(255, 255, 255, 0.15);
-            --text-primary: #f0f0f5;
-            --text-secondary: #8a8a9a;
-            --text-muted: #55556a;
-            --accent: #6366f1;
-            --accent-hover: #818cf8;
-            --accent-glow: rgba(99, 102, 241, 0.25);
-            --success: #22c55e;
-            --error: #ef4444;
-            --warning: #f59e0b;
-            --radius: 12px;
-            --radius-lg: 16px;
-            --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --bg-primary: #06060b;
+            --bg-surface: rgba(255, 255, 255, 0.03);
+            --bg-surface-hover: rgba(255, 255, 255, 0.06);
+            --bg-elevated: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.07);
+            --border-hover: rgba(255, 255, 255, 0.14);
+            --text-primary: #eeeef3;
+            --text-secondary: #8b8ba0;
+            --text-muted: #4e4e66;
+            --accent: #7c5cfc;
+            --accent-light: #a78bfa;
+            --accent-glow: rgba(124, 92, 252, 0.3);
+            --accent-subtle: rgba(124, 92, 252, 0.08);
+            --success: #34d399;
+            --success-bg: rgba(52, 211, 153, 0.08);
+            --error: #f87171;
+            --error-bg: rgba(248, 113, 113, 0.08);
+            --warning: #fbbf24;
+            --warning-bg: rgba(251, 191, 36, 0.08);
+            --radius: 14px;
+            --radius-lg: 20px;
+            --radius-sm: 8px;
+            --ease: cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         body {
@@ -40,198 +45,310 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 2rem 1rem;
+            padding: 2rem 1.25rem 4rem;
             overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
         }
 
-        body::before {
-            content: '';
+        /* Animated background gradient orbs */
+        .bg-orb {
             position: fixed;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(ellipse at 30% 20%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
-                        radial-gradient(ellipse at 70% 80%, rgba(139, 92, 246, 0.06) 0%, transparent 50%);
+            border-radius: 50%;
+            filter: blur(100px);
             z-index: -1;
-            animation: bgShift 20s ease-in-out infinite alternate;
+            opacity: 0.5;
+        }
+        .bg-orb-1 {
+            width: 600px; height: 600px;
+            top: -200px; left: -100px;
+            background: radial-gradient(circle, rgba(124, 92, 252, 0.12) 0%, transparent 70%);
+            animation: orbFloat1 25s ease-in-out infinite;
+        }
+        .bg-orb-2 {
+            width: 500px; height: 500px;
+            bottom: -150px; right: -100px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+            animation: orbFloat2 30s ease-in-out infinite;
+        }
+        .bg-orb-3 {
+            width: 400px; height: 400px;
+            top: 40%; left: 60%;
+            background: radial-gradient(circle, rgba(167, 139, 250, 0.06) 0%, transparent 70%);
+            animation: orbFloat3 20s ease-in-out infinite;
         }
 
-        @keyframes bgShift {
-            0%   { transform: translate(0, 0); }
-            100% { transform: translate(-5%, 3%); }
+        @keyframes orbFloat1 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(80px, 60px) scale(1.1); }
+            66% { transform: translate(-40px, 30px) scale(0.95); }
+        }
+        @keyframes orbFloat2 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(-60px, -40px) scale(1.05); }
+        }
+        @keyframes orbFloat3 {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(40px, -50px); }
         }
 
-        /* ── Layout ────────────────────────────────────────────────────── */
+        /* Container */
         .container {
             width: 100%;
-            max-width: 640px;
+            max-width: 720px;
+            position: relative;
         }
 
+        /* Header */
         header {
             text-align: center;
             margin-bottom: 2.5rem;
+            animation: slideDown 0.6s var(--ease);
         }
 
-        header .badge {
-            display: inline-block;
-            padding: 0.3rem 0.8rem;
-            font-size: 0.7rem;
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.35rem 1rem;
+            font-size: 0.68rem;
             font-weight: 600;
-            letter-spacing: 0.08em;
+            letter-spacing: 0.1em;
             text-transform: uppercase;
-            color: var(--accent);
-            background: var(--accent-glow);
-            border: 1px solid rgba(99, 102, 241, 0.2);
+            color: var(--accent-light);
+            background: var(--accent-subtle);
+            border: 1px solid rgba(124, 92, 252, 0.15);
             border-radius: 100px;
-            margin-bottom: 1rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .badge .dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
         }
 
         header h1 {
-            font-size: 1.75rem;
-            font-weight: 700;
-            line-height: 1.3;
-            letter-spacing: -0.02em;
-            margin-bottom: 0.5rem;
+            font-size: 2rem;
+            font-weight: 800;
+            line-height: 1.2;
+            letter-spacing: -0.03em;
+            margin-bottom: 0.6rem;
+            background: linear-gradient(135deg, #fff 0%, #c4b5fd 50%, #7c5cfc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         header p {
             color: var(--text-secondary);
             font-size: 0.9rem;
-            line-height: 1.5;
+            line-height: 1.6;
+            max-width: 480px;
+            margin: 0 auto;
         }
 
-        /* ── Card ──────────────────────────────────────────────────────── */
+        /* Card */
         .card {
-            background: var(--bg-card);
+            background: var(--bg-surface);
             border: 1px solid var(--border);
             border-radius: var(--radius-lg);
-            padding: 1.75rem;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            transition: border-color var(--transition);
+            padding: 2rem;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            transition: border-color 0.3s var(--ease);
+            animation: fadeUp 0.6s var(--ease) 0.1s both;
         }
 
-        .card:hover {
-            border-color: var(--border-hover);
+        .card:hover { border-color: var(--border-hover); }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        /* ── Upload Zone ───────────────────────────────────────────────── */
+        /* Upload Zone */
         .upload-zone {
             position: relative;
-            border: 2px dashed var(--border);
+            border: 2px dashed rgba(255, 255, 255, 0.1);
             border-radius: var(--radius);
-            padding: 2.5rem 1.5rem;
+            padding: 3rem 1.5rem;
             text-align: center;
             cursor: pointer;
-            transition: all var(--transition);
-            margin-bottom: 1.25rem;
+            transition: all 0.3s var(--ease);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
         }
+
+        .upload-zone::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, var(--accent-subtle) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s var(--ease);
+        }
+
+        .upload-zone:hover::before,
+        .upload-zone.drag-over::before { opacity: 1; }
 
         .upload-zone:hover,
         .upload-zone.drag-over {
             border-color: var(--accent);
-            background: rgba(99, 102, 241, 0.05);
+            transform: translateY(-2px);
         }
 
         .upload-zone.has-file {
             border-color: var(--success);
             border-style: solid;
-            background: rgba(34, 197, 94, 0.04);
+            background: var(--success-bg);
         }
+        .upload-zone.has-file::before { opacity: 0; }
 
         .upload-zone input[type="file"] {
             position: absolute;
             inset: 0;
             opacity: 0;
             cursor: pointer;
+            z-index: 2;
         }
 
         .upload-icon {
-            font-size: 2rem;
-            margin-bottom: 0.75rem;
+            position: relative;
+            z-index: 1;
+            width: 56px; height: 56px;
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            font-size: 1.5rem;
+            transition: all 0.3s var(--ease);
+        }
+
+        .upload-zone:hover .upload-icon {
+            transform: scale(1.05);
+            border-color: var(--accent);
+            background: var(--accent-subtle);
         }
 
         .upload-zone h3 {
+            position: relative;
+            z-index: 1;
             font-size: 0.95rem;
             font-weight: 600;
-            margin-bottom: 0.35rem;
+            margin-bottom: 0.3rem;
         }
 
         .upload-zone .hint {
+            position: relative;
+            z-index: 1;
             font-size: 0.78rem;
             color: var(--text-muted);
         }
 
         .file-info {
             display: none;
+            position: relative;
+            z-index: 1;
             align-items: center;
             gap: 0.5rem;
-            font-size: 0.85rem;
+            justify-content: center;
+            font-size: 0.82rem;
             color: var(--success);
-            margin-top: 0.5rem;
+            margin-top: 0.75rem;
+            font-weight: 500;
         }
 
-        .file-info.visible { display: flex; justify-content: center; }
+        .file-info.visible { display: flex; }
 
-        /* ── Preview ───────────────────────────────────────────────────── */
+        /* Preview */
         .preview-container {
             display: none;
-            margin-bottom: 1.25rem;
+            margin-bottom: 1.5rem;
             border-radius: var(--radius);
             overflow: hidden;
-            background: repeating-conic-gradient(rgba(255,255,255,0.03) 0% 25%, transparent 0% 50%) 50% / 20px 20px;
+            background:
+                repeating-conic-gradient(rgba(255,255,255,0.04) 0% 25%, transparent 0% 50%) 50% / 18px 18px;
             border: 1px solid var(--border);
-            max-height: 200px;
+            max-height: 220px;
             justify-content: center;
             align-items: center;
+            animation: fadeUp 0.3s var(--ease);
         }
 
         .preview-container.visible { display: flex; }
 
         .preview-container img {
             max-width: 100%;
-            max-height: 200px;
+            max-height: 220px;
             object-fit: contain;
         }
 
-        /* ── Button ────────────────────────────────────────────────────── */
+        /* Button */
         .btn-process {
             width: 100%;
-            padding: 0.85rem;
+            padding: 0.9rem;
             font-family: inherit;
             font-size: 0.9rem;
             font-weight: 600;
             color: #fff;
-            background: var(--accent);
+            background: linear-gradient(135deg, var(--accent) 0%, #6366f1 100%);
             border: none;
             border-radius: var(--radius);
             cursor: pointer;
-            transition: all var(--transition);
+            transition: all 0.3s var(--ease);
             position: relative;
             overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-process::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%);
+            transform: translateX(-100%);
+            transition: transform 0.5s var(--ease);
+        }
+
+        .btn-process:hover:not(:disabled)::before {
+            transform: translateX(100%);
         }
 
         .btn-process:hover:not(:disabled) {
-            background: var(--accent-hover);
-            box-shadow: 0 0 20px var(--accent-glow);
+            box-shadow: 0 4px 24px var(--accent-glow), 0 0 0 1px rgba(124, 92, 252, 0.3);
             transform: translateY(-1px);
         }
 
         .btn-process:active:not(:disabled) {
             transform: translateY(0);
+            box-shadow: 0 2px 12px var(--accent-glow);
         }
 
         .btn-process:disabled {
-            opacity: 0.5;
+            opacity: 0.4;
             cursor: not-allowed;
         }
 
-        /* ── Spinner ───────────────────────────────────────────────────── */
+        /* Spinner */
         .spinner {
             display: none;
-            width: 18px;
-            height: 18px;
+            width: 18px; height: 18px;
             border: 2px solid rgba(255,255,255,0.3);
             border-top-color: #fff;
             border-radius: 50%;
@@ -240,80 +357,157 @@
         }
 
         .btn-process.loading .spinner { display: inline-block; }
-        .btn-process.loading .btn-text { opacity: 0.8; }
 
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* ── Status Messages ───────────────────────────────────────────── */
+        /* Progress Steps */
+        .progress-steps {
+            display: none;
+            margin-top: 1.25rem;
+            padding: 1rem 1.25rem;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            animation: fadeUp 0.3s var(--ease);
+        }
+
+        .progress-steps.visible { display: block; }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 0;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            transition: color 0.3s var(--ease);
+        }
+
+        .step.active { color: var(--text-primary); }
+        .step.done { color: var(--success); }
+
+        .step-icon {
+            width: 22px; height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            flex-shrink: 0;
+            transition: all 0.3s var(--ease);
+        }
+
+        .step.active .step-icon {
+            background: var(--accent-subtle);
+            border-color: var(--accent);
+            color: var(--accent-light);
+        }
+
+        .step.done .step-icon {
+            background: var(--success-bg);
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .step.active .step-icon::after {
+            content: '';
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        /* Status Messages */
         .status-bar {
             display: none;
             margin-top: 1.25rem;
-            padding: 0.75rem 1rem;
+            padding: 0.85rem 1.1rem;
             border-radius: var(--radius);
             font-size: 0.82rem;
             font-weight: 500;
             line-height: 1.5;
-            animation: fadeIn 0.3s ease;
+            animation: fadeUp 0.3s var(--ease);
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
         }
 
-        .status-bar.visible { display: block; }
+        .status-bar { display: none; }
+        .status-bar.visible { display: flex; }
 
         .status-bar.success {
-            background: rgba(34, 197, 94, 0.08);
-            border: 1px solid rgba(34, 197, 94, 0.2);
+            background: var(--success-bg);
+            border: 1px solid rgba(52, 211, 153, 0.2);
             color: var(--success);
         }
 
         .status-bar.error {
-            background: rgba(239, 68, 68, 0.08);
-            border: 1px solid rgba(239, 68, 68, 0.2);
+            background: var(--error-bg);
+            border: 1px solid rgba(248, 113, 113, 0.2);
             color: var(--error);
         }
 
         .status-bar.warning {
-            background: rgba(245, 158, 11, 0.08);
-            border: 1px solid rgba(245, 158, 11, 0.2);
+            background: var(--warning-bg);
+            border: 1px solid rgba(251, 191, 36, 0.2);
             color: var(--warning);
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(6px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-
-        /* ── Results Grid ──────────────────────────────────────────────── */
+        /* Results Section */
         .results-section {
             display: none;
             margin-top: 2rem;
+            animation: fadeUp 0.5s var(--ease);
         }
 
         .results-section.visible { display: block; }
 
-        .results-section h2 {
-            font-size: 1.1rem;
-            font-weight: 600;
+        .results-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             margin-bottom: 1rem;
+        }
+
+        .results-header h2 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+
+        .results-header .count {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            background: var(--bg-elevated);
+            padding: 0.25rem 0.65rem;
+            border-radius: 100px;
+            border: 1px solid var(--border);
         }
 
         .results-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 0.75rem;
+            gap: 0.85rem;
         }
 
         .result-card {
-            background: var(--bg-card);
+            background: var(--bg-surface);
             border: 1px solid var(--border);
             border-radius: var(--radius);
             overflow: hidden;
-            transition: all var(--transition);
-            animation: fadeIn 0.4s ease;
+            transition: all 0.3s var(--ease);
         }
+
+        .result-card:nth-child(1) { animation: fadeUp 0.4s var(--ease) 0.05s both; }
+        .result-card:nth-child(2) { animation: fadeUp 0.4s var(--ease) 0.15s both; }
+        .result-card:nth-child(3) { animation: fadeUp 0.4s var(--ease) 0.25s both; }
 
         .result-card:hover {
             border-color: var(--border-hover);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05);
         }
 
         .result-card .thumb {
@@ -322,77 +516,152 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: repeating-conic-gradient(rgba(255,255,255,0.03) 0% 25%, transparent 0% 50%) 50% / 16px 16px;
-            padding: 0.75rem;
+            background:
+                repeating-conic-gradient(rgba(255,255,255,0.03) 0% 25%, transparent 0% 50%) 50% / 14px 14px;
+            padding: 1rem;
+            position: relative;
         }
 
         .result-card .thumb img {
             max-width: 100%;
             max-height: 100%;
             object-fit: contain;
+            transition: transform 0.3s var(--ease);
         }
 
-        .result-card .label {
-            padding: 0.6rem 0.75rem;
+        .result-card:hover .thumb img {
+            transform: scale(1.05);
+        }
+
+        .result-card .info {
+            padding: 0.7rem 0.85rem;
             border-top: 1px solid var(--border);
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
 
-        .result-card .label span {
-            font-size: 0.75rem;
-            font-weight: 500;
+        .result-card .info .name {
+            font-size: 0.78rem;
+            font-weight: 600;
             text-transform: capitalize;
         }
 
-        .result-card .label a {
-            font-size: 0.7rem;
-            color: var(--accent);
+        .result-card .info .desc {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-top: 0.15rem;
+        }
+
+        .result-card .info a {
+            font-size: 0.72rem;
+            color: var(--accent-light);
             text-decoration: none;
-            font-weight: 500;
-            transition: color var(--transition);
+            font-weight: 600;
+            padding: 0.3rem 0.6rem;
+            border-radius: var(--radius-sm);
+            background: var(--accent-subtle);
+            transition: all 0.2s var(--ease);
+            white-space: nowrap;
         }
 
-        .result-card .label a:hover {
-            color: var(--accent-hover);
+        .result-card .info a:hover {
+            background: rgba(124, 92, 252, 0.2);
+            color: #fff;
         }
 
-        /* ── Footer ────────────────────────────────────────────────────── */
+        /* How it works section */
+        .how-it-works {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+            margin-top: 2rem;
+            animation: fadeUp 0.6s var(--ease) 0.2s both;
+        }
+
+        .how-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            text-align: center;
+            transition: all 0.3s var(--ease);
+        }
+
+        .how-card:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-2px);
+        }
+
+        .how-card .icon {
+            width: 40px; height: 40px;
+            margin: 0 auto 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            font-size: 1.1rem;
+        }
+
+        .how-card h4 {
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .how-card p {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        /* Footer */
         footer {
             margin-top: 3rem;
             text-align: center;
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             color: var(--text-muted);
+            animation: fadeUp 0.6s var(--ease) 0.3s both;
         }
 
-        /* ── Responsive ────────────────────────────────────────────────── */
-        @media (max-width: 480px) {
-            .results-grid {
-                grid-template-columns: 1fr;
-            }
-            header h1 { font-size: 1.4rem; }
+        footer a {
+            color: var(--accent-light);
+            text-decoration: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            header h1 { font-size: 1.5rem; }
             .card { padding: 1.25rem; }
+            .results-grid, .how-it-works { grid-template-columns: 1fr; }
+            .upload-zone { padding: 2rem 1rem; }
         }
     </style>
 </head>
 <body>
 
+<!-- Background orbs -->
+<div class="bg-orb bg-orb-1"></div>
+<div class="bg-orb bg-orb-2"></div>
+<div class="bg-orb bg-orb-3"></div>
+
 <div class="container">
-    <!-- Header -->
     <header>
-        <div class="badge">Computer Vision Pipeline</div>
+        <div class="badge">
+            <span class="dot"></span>
+            Computer Vision Pipeline
+        </div>
         <h1>Logo Processing Service</h1>
-        <p>Upload a logo or image to generate silhouette, edge, and grayscale outputs — delivered to your inbox automatically.</p>
+        <p>Upload a logo or image — get silhouette, edge detection, and grayscale outputs generated instantly and delivered to your inbox.</p>
     </header>
 
-    <!-- Upload Card -->
     <div class="card">
         <form id="uploadForm" enctype="multipart/form-data">
-            <!-- Drop Zone -->
             <div class="upload-zone" id="dropZone">
                 <input type="file" id="fileInput" name="file" accept=".png,.jpg,.jpeg" />
-                <div class="upload-icon">📁</div>
+                <div class="upload-icon">⬆</div>
                 <h3>Drop your image here or click to browse</h3>
                 <p class="hint">PNG, JPG / JPEG — max 5 MB</p>
                 <div class="file-info" id="fileInfo">
@@ -401,35 +670,71 @@
                 </div>
             </div>
 
-            <!-- Preview -->
             <div class="preview-container" id="previewContainer">
                 <img id="previewImage" alt="Upload preview" />
             </div>
 
-            <!-- Submit -->
             <button type="submit" class="btn-process" id="submitBtn" disabled>
                 <span class="spinner"></span>
                 <span class="btn-text">Upload &amp; Process</span>
             </button>
         </form>
 
-        <!-- Status -->
+        <!-- Processing Steps -->
+        <div class="progress-steps" id="progressSteps">
+            <div class="step" id="step1" data-label="Validating upload...">
+                <span class="step-icon"></span>
+                <span>Validating upload...</span>
+            </div>
+            <div class="step" id="step2" data-label="Running CV transformations...">
+                <span class="step-icon"></span>
+                <span>Running CV transformations...</span>
+            </div>
+            <div class="step" id="step3" data-label="Sending email with attachments...">
+                <span class="step-icon"></span>
+                <span>Sending email with attachments...</span>
+            </div>
+        </div>
+
         <div class="status-bar" id="statusBar"></div>
     </div>
 
     <!-- Results -->
     <div class="results-section" id="resultsSection">
-        <h2>Generated Outputs</h2>
+        <div class="results-header">
+            <h2>Generated Outputs</h2>
+            <span class="count">3 files</span>
+        </div>
         <div class="results-grid" id="resultsGrid"></div>
     </div>
 
+    <!-- How it works -->
+    <div class="how-it-works">
+        <div class="how-card">
+            <div class="icon">🖼</div>
+            <h4>Silhouette</h4>
+            <p>Solid filled shape — outer form only, no internal detail</p>
+        </div>
+        <div class="how-card">
+            <div class="icon">✏️</div>
+            <h4>Edge / Border</h4>
+            <p>Canny edge detection — outlines and strokes, no fills</p>
+        </div>
+        <div class="how-card">
+            <div class="icon">🌗</div>
+            <h4>Grayscale</h4>
+            <p>Luminance conversion preserving transparency</p>
+        </div>
+    </div>
+
     <footer>
-        Logo Processing &amp; Email Delivery Service &bull; FastAPI + OpenCV
+        Built with FastAPI + OpenCV + Pillow &bull;
+        <a href="/docs" target="_blank">API Docs</a>
     </footer>
 </div>
 
 <script>
-    const dropZone      = document.getElementById('dropZone');
+    const dropZone       = document.getElementById('dropZone');
     const fileInput      = document.getElementById('fileInput');
     const fileInfo       = document.getElementById('fileInfo');
     const fileName       = document.getElementById('fileName');
@@ -440,19 +745,14 @@
     const resultsSection = document.getElementById('resultsSection');
     const resultsGrid    = document.getElementById('resultsGrid');
     const form           = document.getElementById('uploadForm');
+    const progressSteps  = document.getElementById('progressSteps');
 
-    // ── Drag & Drop ──────────────────────────────────────────────────────
+    // Drag & Drop
     ['dragenter', 'dragover'].forEach(evt =>
-        dropZone.addEventListener(evt, e => {
-            e.preventDefault();
-            dropZone.classList.add('drag-over');
-        })
+        dropZone.addEventListener(evt, e => { e.preventDefault(); dropZone.classList.add('drag-over'); })
     );
     ['dragleave', 'drop'].forEach(evt =>
-        dropZone.addEventListener(evt, e => {
-            e.preventDefault();
-            dropZone.classList.remove('drag-over');
-        })
+        dropZone.addEventListener(evt, e => { e.preventDefault(); dropZone.classList.remove('drag-over'); })
     );
     dropZone.addEventListener('drop', e => {
         if (e.dataTransfer.files.length) {
@@ -461,18 +761,20 @@
         }
     });
 
-    // ── File selection ───────────────────────────────────────────────────
     fileInput.addEventListener('change', () => {
         if (fileInput.files.length) handleFileSelect(fileInput.files[0]);
     });
 
     function handleFileSelect(file) {
-        fileName.textContent = `${file.name} (${(file.size / 1024).toFixed(0)} KB)`;
+        const sizeKB = (file.size / 1024).toFixed(0);
+        const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+        const sizeStr = file.size > 1024 * 1024 ? `${sizeMB} MB` : `${sizeKB} KB`;
+
+        fileName.textContent = `${file.name} (${sizeStr})`;
         fileInfo.classList.add('visible');
         dropZone.classList.add('has-file');
         submitBtn.disabled = false;
 
-        // Preview
         const reader = new FileReader();
         reader.onload = e => {
             previewImage.src = e.target.result;
@@ -480,51 +782,79 @@
         };
         reader.readAsDataURL(file);
 
-        // Clear old results
         resultsSection.classList.remove('visible');
         statusBar.classList.remove('visible', 'success', 'error', 'warning');
+        progressSteps.classList.remove('visible');
+        resetSteps();
     }
 
-    // ── Form submission ──────────────────────────────────────────────────
+    // Progress step animation
+    function resetSteps() {
+        document.querySelectorAll('.step').forEach(s => {
+            s.classList.remove('active', 'done');
+            s.querySelector('.step-icon').innerHTML = '';
+        });
+    }
+
+    function activateStep(n) {
+        const step = document.getElementById(`step${n}`);
+        if (!step) return;
+        step.classList.add('active');
+    }
+
+    function completeStep(n) {
+        const step = document.getElementById(`step${n}`);
+        if (!step) return;
+        step.classList.remove('active');
+        step.classList.add('done');
+        step.querySelector('.step-icon').innerHTML = '✓';
+    }
+
+    // Form submission
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-
         const file = fileInput.files[0];
         if (!file) return;
 
-        // UI → loading
         submitBtn.disabled = true;
         submitBtn.classList.add('loading');
         submitBtn.querySelector('.btn-text').textContent = 'Processing…';
         statusBar.classList.remove('visible', 'success', 'error', 'warning');
         resultsSection.classList.remove('visible');
 
+        // Show progress steps
+        resetSteps();
+        progressSteps.classList.add('visible');
+        activateStep(1);
+
         const formData = new FormData();
         formData.append('file', file);
 
         try {
+            // Simulate step progression
+            setTimeout(() => { completeStep(1); activateStep(2); }, 400);
+            setTimeout(() => { completeStep(2); activateStep(3); }, 1200);
+
             const res = await fetch('/process', { method: 'POST', body: formData });
             const data = await res.json();
+
+            // Complete all steps
+            completeStep(1); completeStep(2); completeStep(3);
 
             if (!res.ok) {
                 showStatus('error', `Error: ${data.detail || 'Processing failed.'}`);
                 return;
             }
 
-            // Email status
             const emailOk = data.email_status === 'sent';
-            if (emailOk) {
-                showStatus('success',
-                    `✓ All 3 outputs generated successfully. Email sent!`
-                );
-            } else {
-                showStatus('warning',
-                    `✓ Outputs generated. Email: ${data.email_status}`
-                );
-            }
-
-            // Render result cards
-            renderResults(data.downloads);
+            setTimeout(() => {
+                if (emailOk) {
+                    showStatus('success', '✓ All 3 outputs generated successfully. Email sent!');
+                } else {
+                    showStatus('warning', `✓ Outputs generated. Email: ${data.email_status}`);
+                }
+                renderResults(data.downloads);
+            }, 300);
 
         } catch (err) {
             showStatus('error', `Network error: ${err.message}`);
@@ -542,23 +872,30 @@
 
     function renderResults(downloads) {
         resultsGrid.innerHTML = '';
-        const labels = { silhouette: 'Silhouette', border: 'Edge / Border', grayscale: 'Grayscale' };
+        const meta = {
+            silhouette: { label: 'Silhouette', desc: 'Solid filled shape' },
+            border:     { label: 'Edge / Border', desc: 'Canny edge detection' },
+            grayscale:  { label: 'Grayscale', desc: 'Luminance conversion' }
+        };
 
         for (const [key, url] of Object.entries(downloads)) {
+            const m = meta[key] || { label: key, desc: '' };
             const card = document.createElement('div');
             card.className = 'result-card';
             card.innerHTML = `
                 <div class="thumb">
-                    <img src="${url}" alt="${labels[key] || key}" />
+                    <img src="${url}" alt="${m.label}" />
                 </div>
-                <div class="label">
-                    <span>${labels[key] || key}</span>
+                <div class="info">
+                    <div>
+                        <div class="name">${m.label}</div>
+                        <div class="desc">${m.desc}</div>
+                    </div>
                     <a href="${url}" download="${key}.png">↓ Save</a>
                 </div>
             `;
             resultsGrid.appendChild(card);
         }
-
         resultsSection.classList.add('visible');
     }
 </script>
